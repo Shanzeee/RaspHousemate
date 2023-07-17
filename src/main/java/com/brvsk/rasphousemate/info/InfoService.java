@@ -1,4 +1,4 @@
-package com.brvsk.rasphousemate.service;
+package com.brvsk.rasphousemate.info;
 
 import com.pi4j.platform.Platform;
 import com.pi4j.platform.PlatformManager;
