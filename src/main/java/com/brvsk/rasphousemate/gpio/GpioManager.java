@@ -1,6 +1,7 @@
-package com.brvsk.rasphousemate.manager;
+package com.brvsk.rasphousemate.gpio;
 
 import com.pi4j.io.gpio.*;
+import com.pi4j.io.gpio.GpioController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
