@@ -40,7 +40,7 @@ public class MeasurementService {
 
     @Scheduled(fixedRate = 900000) //15 minutes
     public void addMeasurement() throws InterruptedException {
-        Map<String, Float> measurementMap = dht11.getAverageMeasurement(21);
+        Map<String, Float> measurementMap = dht11.getAverageMeasurement();
         float temperature = measurementMap.get("temperature");
         float humidity = measurementMap.get("humidity");
 

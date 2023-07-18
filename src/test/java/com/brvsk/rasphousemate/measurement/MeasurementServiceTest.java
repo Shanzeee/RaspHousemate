@@ -37,13 +37,13 @@ class MeasurementServiceTest {
                 .airHumidity(humidity)
                 .build();
 
-        when(dht11.getAverageMeasurement(21)).thenReturn(measurementMap);
+        when(dht11.getAverageMeasurement()).thenReturn(measurementMap);
 
         // When
         measurementService.addMeasurement();
 
         // Then
-        verify(dht11, times(1)).getAverageMeasurement(21);
+        verify(dht11, times(1)).getAverageMeasurement();
         verify(measurementRepository, times(1)).save(measurement);
         verifyNoMoreInteractions(dht11, measurementRepository);
     }

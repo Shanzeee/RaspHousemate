@@ -13,12 +13,13 @@ import java.util.Map;
 @Component
 @Slf4j
 public class Dht11 {
+
+    private final int DHT11_PIN = 21;
     private static final int MAXTIMINGS  = 85;
     private final int[] dht11_dat = { 0, 0, 0, 0, 0 };
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public Dht11() {
-
         if (Gpio.wiringPiSetup() == -1) {
             logger.error("gpio setup failed");
         }
@@ -27,7 +28,7 @@ public class Dht11 {
 
     }
 
-    public Map<String, Float> getAverageMeasurement(final int pin) throws InterruptedException {
+    public Map<String, Float> getAverageMeasurement() throws InterruptedException {
         float totalTemperature = 0;
         float totalHumidity = 0;
         int measurementsCount = 3;
@@ -35,7 +36,7 @@ public class Dht11 {
 
         while (i < measurementsCount) {
             Thread.sleep(2000);
-            Map<String, Float> measurement = getOneMeasurement(pin);
+            Map<String, Float> measurement = getOneMeasurement();
             float temperature = measurement.get("temperature");
             float humidity = measurement.get("humidity");
 
@@ -58,22 +59,22 @@ public class Dht11 {
         return averageMeasurement;
     }
 
-    private Map<String, Float> getOneMeasurement(final int pin) {
+    private Map<String, Float> getOneMeasurement() {
         Map<String, Float> map = new HashMap<>();
         int laststate = Gpio.HIGH;
         int j = 0;
         dht11_dat[0] = dht11_dat[1] = dht11_dat[2] = dht11_dat[3] = dht11_dat[4] = 0;
 
-        Gpio.pinMode(pin, Gpio.OUTPUT);
-        Gpio.digitalWrite(pin, Gpio.LOW);
+        Gpio.pinMode(DHT11_PIN, Gpio.OUTPUT);
+        Gpio.digitalWrite(DHT11_PIN, Gpio.LOW);
         Gpio.delay(18);
 
-        Gpio.digitalWrite(pin, Gpio.HIGH);
-        Gpio.pinMode(pin, Gpio.INPUT);
+        Gpio.digitalWrite(DHT11_PIN, Gpio.HIGH);
+        Gpio.pinMode(DHT11_PIN, Gpio.INPUT);
 
         for (int i = 0; i < MAXTIMINGS; i++) {
             int counter = 0;
-            while (Gpio.digitalRead(pin) == laststate) {
+            while (Gpio.digitalRead(DHT11_PIN) == laststate) {
                 counter++;
                 Gpio.delayMicroseconds(1);
                 if (counter == 255) {
@@ -81,7 +82,7 @@ public class Dht11 {
                 }
             }
 
-            laststate = Gpio.digitalRead(pin);
+            laststate = Gpio.digitalRead(DHT11_PIN);
 
             if (counter == 255) {
                 break;
