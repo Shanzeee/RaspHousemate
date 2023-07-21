@@ -1,12 +1,12 @@
 package com.brvsk.rasphousemate.actuator.airconditioner;
 
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
-import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity(name = "AirConditionerHistory")
