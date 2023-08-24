@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.brvsk</groupId>
-        <artifactId>rasphousemate</artifactId>
+        <artifactId>core-service</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
     <artifactId>commons</artifactId>

@@ -11,11 +11,14 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.brvsk</groupId>
-	<artifactId>rasphousemate</artifactId>
+	<artifactId>core-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>RaspHousemate</name>
 	<description>Project</description>
+	<modules>
+		<module>../notification-service</module>
+	</modules>
 
 	<properties>
 		<java.version>11</java.version>
