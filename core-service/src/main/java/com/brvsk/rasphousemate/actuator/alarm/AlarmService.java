@@ -1,6 +1,10 @@
 package com.brvsk.rasphousemate.actuator.alarm;
 
+import amqp.EventType;
+import amqp.NotificationRequest;
+import amqp.NotificationType;
 import com.brvsk.rasphousemate.gpio.GpioManager;
+import com.brvsk.rasphousemate.publisher.NotificationPublisher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -11,6 +15,7 @@ public class AlarmService {
 
     private final AlarmRepository alarmRepository;
     private final GpioManager gpio;
+    private final NotificationPublisher notificationPublisher;
 
     private final int ALARM_DIODE_ADDRESS_1 = 32;
     private final int ALARM_DIODE_ADDRESS_2 = 33;
@@ -25,6 +30,13 @@ public class AlarmService {
         turnOnAlarmLights(60);
         turnOnAlarmSiren(60);
         saveAlarmStatus(alarmType);
+        notificationPublisher.sendNewNotification(
+                NotificationRequest.builder()
+                        .notificationType(NotificationType.EMAIL)
+                        .eventType(EventType.ALARM)
+                        .build()
+        );
+
     }
 
     public void turnOffAlarm() {
