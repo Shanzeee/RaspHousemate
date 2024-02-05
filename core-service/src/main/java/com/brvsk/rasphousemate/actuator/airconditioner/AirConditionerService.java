@@ -46,19 +46,14 @@ public class AirConditionerService {
     public void automaticTemperatureControl() {
         if (!automaticMode) return;
 
-        try {
-            Map<String, Float> measurementMap = dht11.getAverageMeasurement();
-            float measuredTemperature = measurementMap.get("temperature");
-            if (measuredTemperature > desiredTemperature && !isAirConditionerTurnedOn()) {
-                turnOnAirConditioner();
-                createNewStatus(AirConditionerStatus.TURN_ON_AUTOMATICALLY);
-            } else if (measuredTemperature <= desiredTemperature && isAirConditionerTurnedOn()) {
-                turnOffAirConditioner();
-                createNewStatus(AirConditionerStatus.TURN_OFF_AUTOMATICALLY);
-            }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            log.error("Thread was interrupted during automatic temperature control", e);
+        Map<String, Float> measurementMap = dht11.getAverageMeasurement();
+        float measuredTemperature = measurementMap.get("temperature");
+        if (measuredTemperature > desiredTemperature && !isAirConditionerTurnedOn()) {
+            turnOnAirConditioner();
+            createNewStatus(AirConditionerStatus.TURN_ON_AUTOMATICALLY);
+        } else if (measuredTemperature <= desiredTemperature && isAirConditionerTurnedOn()) {
+            turnOffAirConditioner();
+            createNewStatus(AirConditionerStatus.TURN_OFF_AUTOMATICALLY);
         }
     }
 
