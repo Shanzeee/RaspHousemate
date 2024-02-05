@@ -85,13 +85,6 @@ public class GpioManager {
         }
     }
 
-    /**
-     * Set the state of a pin.
-     *
-     * @param address The address of the GPIO pin.
-     * @param value The value, possible values 1 (= HIGH) or 0 and all other (= LOW)
-     * @return True if successful.
-     */
     public boolean setPinDigitalState(final int address, final int value) {
         logger.info("Set pin digital state requested for address {} to value {}", address, value);
 

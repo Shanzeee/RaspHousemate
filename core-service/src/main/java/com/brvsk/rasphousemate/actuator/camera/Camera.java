@@ -69,7 +69,6 @@ public class Camera{
             System.out.println(line);
         }
 
-        //exitCode 0 = No Errors
         int exitCode = process.waitFor();
         if(exitCode != 0){
             System.out.println("\nCamera exited with error code : " + exitCode);
@@ -91,15 +90,9 @@ public class Camera{
         }
     }
 
-    /**
-     * Builder Pattern to create a config for a single Picture
-     */
     public static class PicConfig {
-        /** where should it be saved and what's the filename?*/
         public final String outputPath;
-        /** using datetime as filename?
-         * if yes, then the outputPath should be a path, not a file
-         */
+
         public final boolean useDate;
         /** a delay, before taking a picture */
         public final int delay;
