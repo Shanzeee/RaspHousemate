@@ -2,85 +2,78 @@ package com.brvsk.rasphousemate.actuator.airconditioner;
 
 import com.brvsk.rasphousemate.gpio.GpioManager;
 import com.brvsk.rasphousemate.utils.Dht11;
-import com.pi4j.io.gpio.PinState;
 import lombok.RequiredArgsConstructor;
-import java.util.Timer;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
-import java.util.TimerTask;
 
 @Service
 @RequiredArgsConstructor
+@Log4j2
 public class AirConditionerService {
 
-    private final int AIR_CONDITIONER_ADDRESS_PIN = 7; // pin have to be GPIO : {7, 11, 12, 13, 15, 16, 18, 22, 29, 31, 32, 33, 37}
+    private static final int AIR_CONDITIONER_ADDRESS_PIN = 7;
+    private static final long CHECK_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes
 
     private final AirConditionerRepository airConditionerRepository;
     private final GpioManager gpio;
     private final Dht11 dht11;
     private float desiredTemperature;
-    Timer timer = new Timer();
-    public void toggleAirConditionerManual(){
-        if (gpio.togglePin(AIR_CONDITIONER_ADDRESS_PIN)){
-            if (isAirConditionerTurnedOn()) {
-                createNewStatus(AirConditionerStatus.TURN_OFF_MANUAL);
-            } else {
-                createNewStatus(AirConditionerStatus.TURN_ON_MANUAL);
-            }
+    private boolean automaticMode = false;
+
+    public void toggleAirConditionerManual() {
+        automaticMode = false;
+        boolean currentState = isAirConditionerTurnedOn();
+        if (gpio.togglePin(AIR_CONDITIONER_ADDRESS_PIN)) {
+            AirConditionerStatus newStatus = currentState ? AirConditionerStatus.TURN_OFF_MANUAL : AirConditionerStatus.TURN_ON_MANUAL;
+            createNewStatus(newStatus);
         } else {
             createNewStatus(AirConditionerStatus.ERROR);
         }
     }
+
     public void setDesiredTemperature(float temperature) {
         this.desiredTemperature = temperature;
     }
 
     public void setAutomaticMode(boolean automaticMode) {
-        if (automaticMode) {
-            scheduleTemperatureCheckTask();
-        } else {
-            cancelTemperatureCheckTask();
+        this.automaticMode = automaticMode;
+    }
+
+    @Scheduled(fixedRate = CHECK_INTERVAL_MS)
+    public void automaticTemperatureControl() {
+        if (!automaticMode) return;
+
+        try {
+            Map<String, Float> measurementMap = dht11.getAverageMeasurement();
+            float measuredTemperature = measurementMap.get("temperature");
+            if (measuredTemperature > desiredTemperature && !isAirConditionerTurnedOn()) {
+                turnOnAirConditioner();
+                createNewStatus(AirConditionerStatus.TURN_ON_AUTOMATICALLY);
+            } else if (measuredTemperature <= desiredTemperature && isAirConditionerTurnedOn()) {
+                turnOffAirConditioner();
+                createNewStatus(AirConditionerStatus.TURN_OFF_AUTOMATICALLY);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("Thread was interrupted during automatic temperature control", e);
         }
     }
 
-    private void scheduleTemperatureCheckTask() {
-        TimerTask task = new TimerTask() {
-            @Override
-            public void run() {
-                try {
-                    Map<String, Float> measurementMap = dht11.getAverageMeasurement();
-                    float measuredTemperature = measurementMap.get("temperature");
-                    if (measuredTemperature > desiredTemperature) {
-                        turnOnAirConditioner();
-                        createNewStatus(AirConditionerStatus.TURN_ON_AUTOMATICALLY);
-                    } else {
-                        turnOffAirConditioner();
-                        createNewStatus(AirConditionerStatus.TURN_OFF_AUTOMATICALLY);
-                    }
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        };
 
-        timer.schedule(task, 0, 10 * 60 * 1000); // Uruchamianie co 10 minut
-    }
 
-    private void turnOnAirConditioner(){
+    private void turnOnAirConditioner() {
         gpio.setPinDigitalState(AIR_CONDITIONER_ADDRESS_PIN, 1);
     }
-    private void turnOffAirConditioner(){
+
+    private void turnOffAirConditioner() {
         gpio.setPinDigitalState(AIR_CONDITIONER_ADDRESS_PIN, 0);
     }
 
-    private void cancelTemperatureCheckTask() {
-        timer.cancel();
-    }
-
     private boolean isAirConditionerTurnedOn() {
-        PinState airConditionerState = gpio.getState(AIR_CONDITIONER_ADDRESS_PIN);
-        return airConditionerState.isHigh();
+        return gpio.getState(AIR_CONDITIONER_ADDRESS_PIN).isHigh();
     }
 
     private void createNewStatus(AirConditionerStatus status) {
