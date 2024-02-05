@@ -7,8 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Component
 @Slf4j
@@ -28,34 +27,59 @@ public class Dht11 {
 
     }
 
-    public Map<String, Float> getAverageMeasurement() throws InterruptedException {
-        float totalTemperature = 0;
-        float totalHumidity = 0;
+    public Map<String, Float> getAverageMeasurement() {
         int measurementsCount = 3;
-        int i = 0;
+        List<Map<String, Float>> successfulMeasurements = new ArrayList<>();
 
-        while (i < measurementsCount) {
+        for (int i = 0; i < measurementsCount; i++) {
+            Map<String, Float> measurement = attemptMeasurement(i);
+            if (!measurement.isEmpty()) {
+                successfulMeasurements.add(measurement);
+            }
+        }
+
+        if (successfulMeasurements.isEmpty()) {
+            logger.error("No successful measurements");
+            return Collections.emptyMap();
+        }
+
+        return calculateAverages(successfulMeasurements);
+    }
+
+    private Map<String, Float> attemptMeasurement(int attemptIndex) {
+        try {
             Thread.sleep(2000);
             Map<String, Float> measurement = getOneMeasurement();
             float temperature = measurement.get("temperature");
             float humidity = measurement.get("humidity");
 
             if (temperature != -99 && humidity != -99) {
-                totalTemperature += temperature;
-                totalHumidity += humidity;
-                i++;
-                logger.info("iteration number: "+i+" done successful");
+                logger.info("Measurement " + (attemptIndex + 1) + ": Success");
+                return measurement;
+            } else {
+                logger.error("Measurement " + (attemptIndex + 1) + ": Failed - bad data");
+                return Collections.emptyMap();
             }
-            else logger.error("bad data");
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            logger.error("Measurement " + (attemptIndex + 1) + " interrupted", e);
+            return Collections.emptyMap();
         }
+    }
 
-        float averageTemperature = totalTemperature / measurementsCount;
-        float averageHumidity = totalHumidity / measurementsCount;
+    private Map<String, Float> calculateAverages(List<Map<String, Float>> successfulMeasurements) {
+        float totalTemperature = 0;
+        float totalHumidity = 0;
+        for (Map<String, Float> measurement : successfulMeasurements) {
+            totalTemperature += measurement.get("temperature");
+            totalHumidity += measurement.get("humidity");
+        }
+        float averageTemperature = totalTemperature / successfulMeasurements.size();
+        float averageHumidity = totalHumidity / successfulMeasurements.size();
 
         Map<String, Float> averageMeasurement = new HashMap<>();
         averageMeasurement.put("averageTemperature", averageTemperature);
         averageMeasurement.put("averageHumidity", averageHumidity);
-
         return averageMeasurement;
     }
 
