@@ -11,7 +11,7 @@ spring:
   datasource:
     driver-class-name: org.postgresql.Driver
     password: password
-    url: jdbc:postgresql://localhost:5432/RaspHousemate
+    url: jdbc:postgresql://localhost:5432/rasp
     username: admin
   jpa:
     hibernate:
