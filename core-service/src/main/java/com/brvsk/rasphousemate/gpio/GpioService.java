@@ -1,6 +1,7 @@
 package com.brvsk.rasphousemate.gpio;
 
 import com.pi4j.io.gpio.GpioPinDigitalOutput;
+import com.pi4j.io.gpio.event.GpioPinListenerDigital;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,6 +72,10 @@ public class GpioService {
 
             return ex.getMessage();
         }
+    }
+
+    public void addInputPinListener(int address, GpioPinListenerDigital listener) {
+        gpioManager.addInputPinListener(address, listener);
     }
 
     public boolean togglePin(int address){

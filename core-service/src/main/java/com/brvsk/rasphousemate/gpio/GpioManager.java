@@ -1,7 +1,8 @@
 package com.brvsk.rasphousemate.gpio;
 
-import com.pi4j.io.gpio.*;
 import com.pi4j.io.gpio.GpioController;
+import com.pi4j.io.gpio.*;
+import com.pi4j.io.gpio.event.GpioPinListenerDigital;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -140,6 +141,23 @@ public class GpioManager {
             } else {
                 throw new IllegalArgumentException("The provisioned pin at the given address is not of the type GpioPinDigitalOutput");
             }
+        }
+    }
+
+    public void addInputPinListener(int address, GpioPinListenerDigital listener) {
+        logger.info("Adding input pin listener for address {}", address);
+
+        Object provisionedPin = provisionedPins.get(address);
+        if (provisionedPin == null) {
+            logger.error("No pin provisioned at address {}", address);
+            return;
+        }
+
+        if (provisionedPin instanceof GpioPinDigitalInput) {
+            GpioPinDigitalInput inputPin = (GpioPinDigitalInput) provisionedPin;
+            inputPin.addListener(listener);
+        } else {
+            logger.error("The provisioned pin at address {} is not of type GpioPinDigitalInput", address);
         }
     }
 }
