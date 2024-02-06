@@ -1,7 +1,7 @@
 package com.brvsk.rasphousemate.actuator.airconditioner;
 
 import com.brvsk.rasphousemate.gpio.GpioManager;
-import com.brvsk.rasphousemate.utils.Dht11;
+import com.brvsk.rasphousemate.sensors.Dht11;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.scheduling.annotation.Scheduled;

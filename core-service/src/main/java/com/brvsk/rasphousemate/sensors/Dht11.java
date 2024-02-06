@@ -1,4 +1,4 @@
-package com.brvsk.rasphousemate.utils;
+package com.brvsk.rasphousemate.sensors;
 
 import com.pi4j.wiringpi.Gpio;
 import com.pi4j.wiringpi.GpioUtil;

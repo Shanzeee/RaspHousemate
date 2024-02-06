@@ -1,6 +1,6 @@
 package com.brvsk.rasphousemate.measurement;
 
-import com.brvsk.rasphousemate.utils.Dht11;
+import com.brvsk.rasphousemate.sensors.Dht11;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.EnableScheduling;
