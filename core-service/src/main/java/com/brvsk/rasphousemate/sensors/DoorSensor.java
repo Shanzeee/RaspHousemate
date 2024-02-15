@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Log4j2
 public class DoorSensor {
 
-    private static final int DOOR_SENSOR_PIN = 21;
+    private static final int DOOR_SENSOR_PIN = 22;
     private final DoorSecuritySystem doorSecuritySystem;
     private final GpioService gpioService;
 

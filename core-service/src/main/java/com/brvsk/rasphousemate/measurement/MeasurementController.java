@@ -26,7 +26,7 @@ public class MeasurementController {
     }
 
     @PostMapping
-    public ResponseEntity<String> addMeasurement() throws InterruptedException {
+    public ResponseEntity<String> addMeasurement() {
         measurementService.addMeasurement();
         return new ResponseEntity<>("New measurement has been added to repository", HttpStatus.OK);
     }
